@@ -1,0 +1,237 @@
+.admin-reports {
+    animation: fadeIn 0.3s ease;
+}
+
+.report-selector {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+.report-type-btn {
+    padding: var(--space-5);
+    text-align: left;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: 2px solid transparent;
+}
+
+.report-type-btn:hover {
+    border-color: var(--primary-200);
+}
+
+.report-type-btn.active {
+    border-color: var(--primary);
+    background: var(--primary-50);
+}
+
+.report-type-icon {
+    font-size: 1.5rem;
+    display: block;
+    margin-bottom: var(--space-2);
+}
+
+.report-type-label {
+    display: block;
+    font-weight: 700;
+    font-size: 0.875rem;
+    margin-bottom: 2px;
+}
+
+.report-type-desc {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+}
+
+.report-filters {
+    padding: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+.filter-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.filter-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-secondary);
+}
+
+.filter-actions {
+    display: flex;
+    gap: var(--space-3);
+}
+
+.report-preview {
+    padding: var(--space-6);
+}
+
+.report-preview-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: var(--space-6);
+    text-transform: capitalize;
+}
+
+.report-summary-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.report-metric {
+    text-align: center;
+}
+
+.metric-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-1);
+}
+
+.metric-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.report-table th {
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+    border-bottom: 1px solid var(--border);
+}
+
+.report-table td {
+    padding: var(--space-3) var(--space-4);
+    font-size: 0.8125rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.placeholder-report {
+    text-align: center;
+    padding: var(--space-6);
+}
+
+.placeholder-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: var(--space-3);
+}
+
+.placeholder-report h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+}
+
+.placeholder-report>p {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-6);
+}
+
+.customer-segments {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-width: 400px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.segment-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: 0.8125rem;
+    padding: var(--space-3);
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+}
+
+.segment-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.segment-item strong {
+    margin-left: auto;
+}
+
+.product-report-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+    text-align: left;
+    margin-top: var(--space-6);
+}
+
+.product-report-section h4 {
+    font-size: 0.875rem;
+    margin-bottom: var(--space-3);
+}
+
+.product-report-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    font-size: 0.8125rem;
+}
+
+.pr-rank {
+    font-weight: 800;
+    color: var(--primary);
+    width: 28px;
+}
+
+.pr-rank.low {
+    color: var(--warning);
+}
+
+.pr-reviews {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+@media (max-width: 768px) {
+    .report-selector {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .filter-row {
+        flex-direction: column;
+    }
+
+    .report-summary-row {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .product-report-grid {
+        grid-template-columns: 1fr;
+    }
+}

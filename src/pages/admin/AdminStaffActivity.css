@@ -1,0 +1,222 @@
+.admin-staff {
+    animation: fadeIn 0.3s ease;
+}
+
+.staff-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+}
+
+.staff-stat {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-5);
+}
+
+.staff-stat-icon {
+    color: var(--primary);
+}
+
+.staff-stat.online .staff-stat-icon {
+    color: var(--success);
+}
+
+.staff-stat-val {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.staff-stat-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.staff-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: var(--space-6);
+}
+
+.staff-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: var(--space-5);
+}
+
+.staff-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+}
+
+.staff-card {
+    padding: var(--space-5);
+}
+
+.staff-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.staff-avatar-wrap {
+    position: relative;
+}
+
+.staff-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+.staff-status-dot {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.staff-status-dot.online {
+    background: var(--success);
+}
+
+.staff-status-dot.away {
+    background: var(--warning);
+}
+
+.staff-status-dot.offline {
+    background: var(--gray-400);
+}
+
+.staff-card-info {
+    flex: 1;
+}
+
+.staff-card-info strong {
+    display: block;
+    font-size: 0.875rem;
+}
+
+.staff-role {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.staff-card-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--space-2);
+    border-top: 1px solid var(--border-light);
+    padding-top: var(--space-3);
+}
+
+.staff-metric {
+    text-align: center;
+}
+
+.staff-metric-value {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.staff-metric-label {
+    display: block;
+    font-size: 0.65rem;
+    color: var(--text-tertiary);
+}
+
+/* Activity Log */
+.activity-log {
+    padding: var(--space-4);
+    position: relative;
+}
+
+.activity-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+    position: relative;
+}
+
+.activity-entry:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 63px;
+    top: 30px;
+    bottom: -6px;
+    width: 2px;
+    background: var(--border-light);
+}
+
+.activity-time {
+    width: 50px;
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    text-align: right;
+    flex-shrink: 0;
+    padding-top: 2px;
+}
+
+.activity-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+    z-index: 1;
+}
+
+.activity-entry.success .activity-dot {
+    background: var(--success);
+}
+
+.activity-entry.info .activity-dot {
+    background: var(--info);
+}
+
+.activity-entry.warning .activity-dot {
+    background: var(--warning);
+}
+
+.activity-content strong {
+    display: block;
+    font-size: 0.8125rem;
+}
+
+.activity-content span {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 1024px) {
+    .staff-summary {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .staff-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .staff-cards {
+        grid-template-columns: 1fr;
+    }
+}

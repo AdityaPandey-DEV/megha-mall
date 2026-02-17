@@ -1,0 +1,282 @@
+.admin-overview {
+    animation: fadeIn 0.3s ease;
+}
+
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-5);
+    margin-bottom: var(--space-8);
+}
+
+.overview-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: var(--space-6);
+    margin-bottom: var(--space-6);
+}
+
+.overview-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: var(--space-5);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.overview-chart-card,
+.overview-status-card,
+.overview-recent-card,
+.overview-top-card,
+.quick-actions-card {
+    padding: var(--space-6);
+}
+
+/* Bar Chart */
+.chart-placeholder {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.mini-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 180px;
+    padding-top: var(--space-4);
+}
+
+.mini-bar {
+    flex: 1;
+    background: linear-gradient(180deg, var(--primary), var(--primary-light));
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    min-height: 8px;
+    position: relative;
+    transition: height 0.5s ease;
+    animation: slideInUp 0.4s ease backwards;
+}
+
+@keyframes slideInUp {
+    from {
+        height: 0 !important;
+    }
+}
+
+.mini-bar-label {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    color: var(--text-tertiary);
+}
+
+.chart-legend {
+    text-align: center;
+    font-size: 0.8125rem;
+    color: var(--success);
+    font-weight: 500;
+}
+
+/* Status Distribution */
+.status-distribution {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.status-bar-row {}
+
+.status-bar-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.8125rem;
+    margin-bottom: var(--space-2);
+}
+
+.status-dot-sm {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.status-count {
+    margin-left: auto;
+    font-weight: 700;
+}
+
+.status-bar-track {
+    height: 8px;
+    background: var(--gray-100);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.status-bar-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.8s ease;
+}
+
+/* Recent Orders */
+.recent-orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.recent-order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    transition: background var(--transition-fast);
+}
+
+.recent-order-item:hover {
+    background: var(--gray-50);
+}
+
+.recent-order-info strong {
+    display: block;
+    font-size: 0.8125rem;
+}
+
+.recent-order-info span {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.recent-order-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.recent-order-total {
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+/* Top Products */
+.top-products-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.top-product-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2);
+}
+
+.top-rank {
+    font-size: 0.8125rem;
+    font-weight: 800;
+    color: var(--primary);
+    width: 24px;
+}
+
+.top-product-img {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+}
+
+.top-product-info {
+    flex: 1;
+}
+
+.top-product-name {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.top-product-brand {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+}
+
+.top-product-meta {
+    text-align: right;
+}
+
+.top-product-price {
+    display: block;
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+.top-product-reviews {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+}
+
+/* Quick Actions */
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--space-4);
+}
+
+.quick-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-5) var(--space-3);
+    border: 1.5px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-fast);
+    gap: var(--space-2);
+}
+
+.quick-action-btn:hover {
+    border-color: var(--primary);
+    background: var(--primary-50);
+    transform: translateY(-2px);
+}
+
+.quick-action-icon {
+    font-size: 1.5rem;
+}
+
+.quick-action-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.quick-action-desc {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+}
+
+@media (max-width: 1024px) {
+    .stats-row {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .overview-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-actions-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .quick-actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
