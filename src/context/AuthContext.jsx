@@ -1,29 +1,100 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { authApi } from '../lib/api';
 
 const AuthContext = createContext();
 
-const mockUsers = {
-    customer: { id: 1, name: 'Ravi Sharma', phone: '9876543210', email: 'ravi@example.com', role: 'customer', points: 450, addresses: [{ id: 1, label: 'Home', address: '12, Shanti Nagar, Near Temple', city: 'Dehradun', pin: '248001' }, { id: 2, label: 'Office', address: '45, IT Park, Phase 2', city: 'Dehradun', pin: '248005' }] },
-    staff: { id: 2, name: 'Mohit Kumar', phone: '8765432109', email: 'mohit@meghamall.com', role: 'staff' },
-    admin: { id: 3, name: 'Harshit (Owner)', phone: '7654321098', email: 'admin@meghamall.com', role: 'admin' },
-};
-
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    const login = useCallback((role) => {
-        setUser(mockUsers[role] || mockUsers.customer);
+    // Restore session on mount
+    useEffect(() => {
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+            authApi.me()
+                .then(data => setUser(data.user))
+                .catch(() => {
+                    localStorage.removeItem('auth_token');
+                    setUser(null);
+                })
+                .finally(() => setLoading(false));
+        } else {
+            setLoading(false);
+        }
     }, []);
 
+    const handleAuthResponse = useCallback((data) => {
+        localStorage.setItem('auth_token', data.token);
+        setUser(data.user);
+        return data.user;
+    }, []);
+
+    // Email + password login
+    const login = useCallback(async (email, password) => {
+        const data = await authApi.login(email, password);
+        return handleAuthResponse(data);
+    }, [handleAuthResponse]);
+
+    // Email + password register
+    const register = useCallback(async (name, email, password) => {
+        const data = await authApi.register(name, email, password);
+        return handleAuthResponse(data);
+    }, [handleAuthResponse]);
+
+    // Google OAuth
+    const loginWithGoogle = useCallback(async (idToken) => {
+        const data = await authApi.googleLogin(idToken);
+        return handleAuthResponse(data);
+    }, [handleAuthResponse]);
+
+    // OTP
+    const sendOtp = useCallback(async (email) => {
+        return authApi.sendOtp(email);
+    }, []);
+
+    const verifyOtp = useCallback(async (email, code) => {
+        const data = await authApi.verifyOtp(email, code);
+        return handleAuthResponse(data);
+    }, [handleAuthResponse]);
+
+    // Logout
     const logout = useCallback(() => {
+        localStorage.removeItem('auth_token');
         setUser(null);
     }, []);
 
-    return (
-        <AuthContext.Provider value={{ user, login, logout, isLoggedIn: !!user }}>
-            {children}
-        </AuthContext.Provider>
-    );
+    // Quick login for staff/admin (development helper)
+    const devLogin = useCallback(async (role) => {
+        const email = `${role}@meghamall.com`;
+        const password = 'password123';
+        try {
+            const data = await authApi.login(email, password);
+            return handleAuthResponse(data);
+        } catch {
+            // Auto-register if not exists
+            const data = await authApi.register(
+                role.charAt(0).toUpperCase() + role.slice(1),
+                email,
+                password
+            );
+            return handleAuthResponse(data);
+        }
+    }, [handleAuthResponse]);
+
+    const value = {
+        user,
+        loading,
+        isLoggedIn: !!user,
+        login,
+        register,
+        loginWithGoogle,
+        sendOtp,
+        verifyOtp,
+        logout,
+        devLogin,
+    };
+
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => {

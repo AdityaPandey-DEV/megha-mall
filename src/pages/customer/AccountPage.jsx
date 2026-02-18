@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { User, Package, MapPin, Heart, Award, LogIn } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { orders } from '../../data/orders';
@@ -15,24 +16,11 @@ const tabs = [
 ];
 
 export default function AccountPage() {
-    const { user, isLoggedIn, login } = useAuth();
+    const { user, isLoggedIn } = useAuth();
     const [activeTab, setActiveTab] = useState('profile');
 
     if (!isLoggedIn) {
-        return (
-            <div className="container section login-prompt">
-                <div className="login-prompt-content">
-                    <LogIn size={48} className="login-icon" />
-                    <h2>Login to Your Account</h2>
-                    <p>Sign in to view your orders, manage addresses, and earn rewards.</p>
-                    <div className="login-buttons">
-                        <button onClick={() => login('customer')} className="btn btn-primary btn-lg">Login as Customer</button>
-                        <button onClick={() => login('staff')} className="btn btn-secondary btn-lg">Staff Login</button>
-                        <button onClick={() => login('admin')} className="btn btn-secondary btn-lg">Admin Login</button>
-                    </div>
-                </div>
-            </div>
-        );
+        return <Navigate to="/login" replace />;
     }
 
     return (

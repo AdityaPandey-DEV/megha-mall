@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/LoadingSpinner';
+import ProtectedRoute from './components/ProtectedRoute';
 
 import CustomerLayout from './layouts/CustomerLayout';
 import DashboardLayout from './layouts/DashboardLayout';
@@ -15,6 +16,9 @@ const ProductPage = lazy(() => import('./pages/customer/ProductPage'));
 const CartPage = lazy(() => import('./pages/customer/CartPage'));
 const CheckoutPage = lazy(() => import('./pages/customer/CheckoutPage'));
 const AccountPage = lazy(() => import('./pages/customer/AccountPage'));
+
+const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
 
 const StaffOrders = lazy(() => import('./pages/staff/StaffOrders'));
 const StaffProducts = lazy(() => import('./pages/staff/StaffProducts'));
@@ -35,18 +39,30 @@ export default function App() {
           <CartProvider>
             <Suspense fallback={<LoadingSpinner />}>
               <Routes>
+                {/* Auth Pages */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+
                 {/* Customer Portal */}
                 <Route element={<CustomerLayout />}>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/category/:categoryId" element={<CategoryPage />} />
                   <Route path="/product/:productId" element={<ProductPage />} />
                   <Route path="/cart" element={<CartPage />} />
-                  <Route path="/checkout" element={<CheckoutPage />} />
-                  <Route path="/account" element={<AccountPage />} />
+                  <Route path="/checkout" element={
+                    <ProtectedRoute><CheckoutPage /></ProtectedRoute>
+                  } />
+                  <Route path="/account" element={
+                    <ProtectedRoute><AccountPage /></ProtectedRoute>
+                  } />
                 </Route>
 
                 {/* Staff Dashboard */}
-                <Route element={<DashboardLayout type="staff" />}>
+                <Route element={
+                  <ProtectedRoute roles={['STAFF', 'ADMIN']}>
+                    <DashboardLayout type="staff" />
+                  </ProtectedRoute>
+                }>
                   <Route path="/staff" element={<StaffOrders />} />
                   <Route path="/staff/orders" element={<StaffOrders />} />
                   <Route path="/staff/products" element={<StaffProducts />} />
@@ -54,7 +70,11 @@ export default function App() {
                 </Route>
 
                 {/* Admin Dashboard */}
-                <Route element={<DashboardLayout type="admin" />}>
+                <Route element={
+                  <ProtectedRoute roles={['ADMIN']}>
+                    <DashboardLayout type="admin" />
+                  </ProtectedRoute>
+                }>
                   <Route path="/admin" element={<AdminOverview />} />
                   <Route path="/admin/overview" element={<AdminOverview />} />
                   <Route path="/admin/analytics" element={<AdminAnalytics />} />

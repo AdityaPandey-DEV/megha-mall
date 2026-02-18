@@ -10,7 +10,7 @@ export default function Navbar() {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const { itemCount } = useCart();
-    const { user, isLoggedIn, login, logout } = useAuth();
+    const { user, isLoggedIn, devLogin, logout } = useAuth();
     const location = useLocation();
 
     return (
@@ -26,9 +26,9 @@ export default function Navbar() {
                         <span>📞 Help: 1800-123-MEGHA</span>
                         {!isLoggedIn ? (
                             <div className="quick-login">
-                                <button onClick={() => login('customer')} className="top-link">Customer Login</button>
-                                <button onClick={() => login('staff')} className="top-link">Staff</button>
-                                <button onClick={() => login('admin')} className="top-link">Admin</button>
+                                <Link to="/login" className="top-link">Sign In</Link>
+                                <button onClick={() => devLogin('staff')} className="top-link">Staff</button>
+                                <button onClick={() => devLogin('admin')} className="top-link">Admin</button>
                             </div>
                         ) : (
                             <span className="top-link" onClick={logout} style={{ cursor: 'pointer' }}>
@@ -62,8 +62,8 @@ export default function Navbar() {
                     </div>
 
                     <div className="navbar-actions">
-                        {isLoggedIn && user.role !== 'customer' && (
-                            <Link to={user.role === 'admin' ? '/admin' : '/staff'} className="btn btn-sm btn-secondary">
+                        {isLoggedIn && user.role !== 'CUSTOMER' && (
+                            <Link to={user.role === 'ADMIN' ? '/admin' : '/staff'} className="btn btn-sm btn-secondary">
                                 Dashboard
                             </Link>
                         )}
@@ -126,8 +126,8 @@ export default function Navbar() {
                             <Link to="/offers" onClick={() => setMobileOpen(false)}>🏷️ Offers</Link>
                             <Link to="/cart" onClick={() => setMobileOpen(false)}>🛒 Cart ({itemCount})</Link>
                             <Link to="/account" onClick={() => setMobileOpen(false)}>👤 My Account</Link>
-                            {isLoggedIn && user.role !== 'customer' && (
-                                <Link to={user.role === 'admin' ? '/admin' : '/staff'} onClick={() => setMobileOpen(false)}>
+                            {isLoggedIn && user.role !== 'CUSTOMER' && (
+                                <Link to={user.role === 'ADMIN' ? '/admin' : '/staff'} onClick={() => setMobileOpen(false)}>
                                     📊 Dashboard
                                 </Link>
                             )}
