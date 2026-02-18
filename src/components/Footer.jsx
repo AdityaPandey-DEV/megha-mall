@@ -9,7 +9,7 @@ export default function Footer() {
                 <div className="footer-grid">
                     <div className="footer-brand">
                         <div className="footer-logo">
-                            <span className="logo-icon">🏪</span>
+                            <img src="/favicon.svg" alt="Megha Mall" className="logo-icon" width="36" height="36" />
                             <span className="logo-text">Megha Mall</span>
                         </div>
                         <p className="footer-desc">Your trusted neighbourhood store for quality groceries and kitchen essentials, now available online!</p>

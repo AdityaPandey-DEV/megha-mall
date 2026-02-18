@@ -4,7 +4,7 @@ export default function LoadingSpinner() {
     return (
         <div className="loading-screen">
             <div className="loading-content">
-                <div className="loading-logo">🏪</div>
+                <img src="/favicon.svg" alt="Megha Mall" className="loading-logo" width="48" height="48" />
                 <div className="loading-spinner">
                     <div className="spinner-ring" />
                 </div>
