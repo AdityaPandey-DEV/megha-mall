@@ -1,0 +1,73 @@
+.not-found {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    background: linear-gradient(180deg, #fff7ed 0%, #ffffff 50%);
+    font-family: 'Inter', system-ui, sans-serif;
+}
+
+.not-found-content {
+    text-align: center;
+    max-width: 480px;
+    animation: fadeIn 0.5s ease;
+}
+
+.not-found-illustration {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.nf-404 {
+    display: block;
+    font-size: 8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #e8590c, #f97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+}
+
+.nf-emoji {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%);
+    }
+
+    50% {
+        transform: translate(-50%, -65%);
+    }
+}
+
+.nf-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 0.75rem;
+}
+
+.nf-desc {
+    color: #6b7280;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+}
+
+.nf-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}

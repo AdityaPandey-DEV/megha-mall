@@ -1,0 +1,22 @@
+{
+    "name": "Megha Mall",
+    "short_name": "MeghaMall",
+    "description": "Fresh Groceries & Kitchen Essentials — Delivered to your door in Dehradun",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#e8590c",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "shopping",
+        "food"
+    ]
+}
