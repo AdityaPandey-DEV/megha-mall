@@ -11,7 +11,7 @@ export default function CheckoutPage() {
     const navigate = useNavigate();
 
     const [deliveryType, setDeliveryType] = useState('home');
-    const [paymentMethod, setPaymentMethod] = useState('upi');
+    const [paymentMethod, setPaymentMethod] = useState('cod');
     const [timeSlot, setTimeSlot] = useState('');
     const [orderPlaced, setOrderPlaced] = useState(false);
 
@@ -139,18 +139,28 @@ export default function CheckoutPage() {
                         <div className="checkout-card card">
                             <h3 className="checkout-card-title"><CreditCard size={20} /> Payment Method</h3>
                             <div className="payment-options">
+                                {/* COD — Active */}
+                                <label className={`payment-option ${paymentMethod === 'cod' ? 'active' : ''}`}>
+                                    <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={(e) => setPaymentMethod(e.target.value)} />
+                                    <Banknote size={20} />
+                                    <div>
+                                        <strong>Cash on Delivery</strong>
+                                        <span>Pay when delivered</span>
+                                    </div>
+                                </label>
+
+                                {/* Online — Coming Soon */}
                                 {[
-                                    { id: 'upi', icon: Smartphone, label: 'UPI (GPay / PhonePe / Paytm)', desc: 'Instant payment' },
-                                    { id: 'card', icon: CreditCard, label: 'Credit / Debit Card', desc: 'Visa, Mastercard, RuPay' },
-                                    { id: 'wallet', icon: Wallet, label: 'Wallet', desc: 'Paytm, PhonePe, Amazon Pay' },
-                                    { id: 'cod', icon: Banknote, label: 'Cash on Delivery', desc: 'Pay when delivered' },
+                                    { id: 'upi', icon: Smartphone, label: 'UPI (GPay / PhonePe / Paytm)' },
+                                    { id: 'card', icon: CreditCard, label: 'Credit / Debit Card' },
+                                    { id: 'wallet', icon: Wallet, label: 'Wallet (Paytm / Amazon Pay)' },
                                 ].map((pm) => (
-                                    <label key={pm.id} className={`payment-option ${paymentMethod === pm.id ? 'active' : ''}`}>
-                                        <input type="radio" name="payment" value={pm.id} checked={paymentMethod === pm.id} onChange={(e) => setPaymentMethod(e.target.value)} />
+                                    <label key={pm.id} className="payment-option disabled" style={{ opacity: 0.5, cursor: 'not-allowed' }}>
+                                        <input type="radio" name="payment" value={pm.id} disabled />
                                         <pm.icon size={20} />
                                         <div>
                                             <strong>{pm.label}</strong>
-                                            <span>{pm.desc}</span>
+                                            <span style={{ color: 'var(--primary)' }}>Coming Soon</span>
                                         </div>
                                     </label>
                                 ))}
@@ -184,7 +194,7 @@ export default function CheckoutPage() {
                         <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }}>
                             Place Order — ₹{total}
                         </button>
-                        <p className="checkout-secure">🔒 Secured by Razorpay</p>
+                        <p className="checkout-secure">💵 Cash on Delivery — Pay when you receive your order</p>
                     </div>
                 </form>
             </div>
