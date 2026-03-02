@@ -78,6 +78,11 @@ export default function Navbar() {
                                 Dashboard
                             </Link>
                         )}
+                        {isLoggedIn && user.role === 'DELIVERY' && (
+                            <Link to="/delivery" className="btn btn-sm btn-secondary">
+                                🛵 My Deliveries
+                            </Link>
+                        )}
                         <Link to="/wishlist" className="nav-action-btn" title="Wishlist">
                             <Heart size={20} />
                         </Link>

@@ -60,10 +60,10 @@ app.use(express.json());
 // Health
 app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
-// Helper: auto-promote admin by email from env
+// Helper: auto-promote admin by email from env (supports comma-separated list)
 async function checkAndSetAdminRole(user) {
-    const adminEmail = process.env.ADMIN_EMAIL;
-    if (adminEmail && user.email === adminEmail && user.role !== 'ADMIN') {
+    const adminEmails = (process.env.ADMIN_EMAIL || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+    if (adminEmails.includes(user.email.toLowerCase()) && user.role !== 'ADMIN') {
         const updated = await prisma.user.update({ where: { id: user.id }, data: { role: 'ADMIN' } });
         return updated;
     }
@@ -318,6 +318,98 @@ app.patch('/api/admin/users/:id/role', authenticate, authorize('ADMIN'), async (
         });
         res.json({ user });
     } catch (err) { console.error(err); res.status(500).json({ error: 'Failed to update user role' }); }
+});
+
+// ════════════════════ DELIVERY TRACKING ════════════════════
+// In-memory store for live delivery locations (resets on cold start, that's fine for real-time)
+const deliveryLocations = new Map();
+
+// Delivery person updates their location
+app.post('/api/delivery/location', authenticate, authorize('DELIVERY', 'ADMIN'), async (req, res) => {
+    try {
+        const { lat, lng, orderId } = req.body;
+        if (!lat || !lng) return res.status(400).json({ error: 'lat and lng required' });
+        const key = orderId || req.user.id;
+        deliveryLocations.set(key, {
+            deliveryPersonId: req.user.id,
+            deliveryPersonName: req.user.name,
+            lat: parseFloat(lat),
+            lng: parseFloat(lng),
+            updatedAt: new Date().toISOString(),
+        });
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: 'Failed to update location' }); }
+});
+
+// Customer/staff gets delivery location for an order
+app.get('/api/delivery/location/:orderId', authenticate, async (req, res) => {
+    try {
+        const loc = deliveryLocations.get(req.params.orderId);
+        if (!loc) return res.json({ location: null });
+        res.json({ location: loc });
+    } catch (err) { res.status(500).json({ error: 'Failed to get location' }); }
+});
+
+// Admin/Management assigns a delivery person to an order
+app.patch('/api/orders/:id/assign', authenticate, authorize('MANAGEMENT', 'ADMIN'), async (req, res) => {
+    try {
+        const { deliveryPersonId } = req.body;
+        if (!deliveryPersonId) return res.status(400).json({ error: 'deliveryPersonId required' });
+        // Verify the delivery person exists and has DELIVERY role
+        const dp = await prisma.user.findUnique({ where: { id: deliveryPersonId } });
+        if (!dp || dp.role !== 'DELIVERY') return res.status(400).json({ error: 'Invalid delivery person' });
+        const order = await prisma.order.update({
+            where: { id: req.params.id },
+            data: { status: 'dispatched', customer: `Assigned: ${dp.name}` },
+            include: { items: true },
+        });
+        // Store assignment in memory for tracking
+        deliveryLocations.set(req.params.id, {
+            deliveryPersonId: dp.id,
+            deliveryPersonName: dp.name,
+            lat: 30.3165, lng: 78.0322, // Default: Dehradun center
+            updatedAt: new Date().toISOString(),
+        });
+        res.json({ order, deliveryPerson: { id: dp.id, name: dp.name } });
+    } catch (err) { console.error(err); res.status(500).json({ error: 'Failed to assign delivery' }); }
+});
+
+// Delivery person sees their assigned orders
+app.get('/api/delivery/my-orders', authenticate, authorize('DELIVERY'), async (req, res) => {
+    try {
+        // Find orders where the delivery person is assigned (stored in customer field as "Assigned: Name")
+        const orders = await prisma.order.findMany({
+            where: { status: { in: ['dispatched', 'packed'] } },
+            include: { items: true },
+            orderBy: { updatedAt: 'desc' },
+        });
+        // Filter to this delivery person's assignments
+        const myOrders = orders.filter(o => {
+            const loc = deliveryLocations.get(o.id);
+            return loc && loc.deliveryPersonId === req.user.id;
+        }).map(o => ({
+            id: o.id,
+            orderNumber: o.orderNumber,
+            customer: o.customer?.replace('Assigned: ', '') || 'Customer',
+            phone: o.phone,
+            address: o.address,
+            total: o.total,
+            status: o.status,
+            items: o.items.map(i => ({ name: i.name, qty: i.quantity })),
+        }));
+        res.json({ orders: myOrders });
+    } catch (err) { console.error(err); res.status(500).json({ error: 'Failed to fetch orders' }); }
+});
+
+// Get all delivery persons (for assignment dropdown)
+app.get('/api/delivery/persons', authenticate, authorize('MANAGEMENT', 'ADMIN'), async (req, res) => {
+    try {
+        const persons = await prisma.user.findMany({
+            where: { role: 'DELIVERY' },
+            select: { id: true, name: true, email: true, phone: true },
+        });
+        res.json({ persons });
+    } catch (err) { res.status(500).json({ error: 'Failed to get delivery persons' }); }
 });
 
 // ── Export for Vercel ──

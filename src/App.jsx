@@ -33,6 +33,9 @@ const AdminReports = lazy(() => import('./pages/admin/AdminReports'));
 const AdminStaffActivity = lazy(() => import('./pages/admin/AdminStaffActivity'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 
+const DeliveryDashboard = lazy(() => import('./pages/delivery/DeliveryDashboard'));
+const OrderTracking = lazy(() => import('./pages/customer/OrderTracking'));
+
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 export default function App() {
@@ -61,6 +64,12 @@ export default function App() {
                   } />
                   <Route path="/account" element={
                     <ProtectedRoute><AccountPage /></ProtectedRoute>
+                  } />
+                  <Route path="/track/:orderId" element={
+                    <ProtectedRoute><OrderTracking /></ProtectedRoute>
+                  } />
+                  <Route path="/delivery" element={
+                    <ProtectedRoute roles={['DELIVERY']}><DeliveryDashboard /></ProtectedRoute>
                   } />
                 </Route>
 
