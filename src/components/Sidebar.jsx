@@ -12,9 +12,9 @@ const staffLinks = [
 
 const adminLinks = [
     { to: '/admin', icon: BarChart3, label: 'Overview', end: true },
-    { to: '/admin/products', icon: ShoppingBag, label: 'Product Analytics' },
+    { to: '/admin/analytics', icon: ShoppingBag, label: 'Product Analytics' },
     { to: '/admin/reports', icon: FileText, label: 'Reports' },
-    { to: '/admin/staff', icon: Users, label: 'Staff Activity' },
+    { to: '/admin/staff-activity', icon: Users, label: 'Staff Activity' },
     { to: '/admin/users', icon: UserCog, label: 'User Management' },
 ];
 
