@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { IndianRupee, ShoppingCart, Users, Package, Loader } from 'lucide-react';
-import { orders as mockOrders, statusLabels, statusColors } from '../../data/orders';
-import { products as mockProducts } from '../../data/products';
-import { dashboardApi, ordersApi, productsApi } from '../../lib/api';
+import { orders as initialOrders, statusLabels, statusColors } from '../../data/orders';
+import { products as initialProducts } from '../../data/products';
+import { dashboardApi, ordersApi } from '../../lib/api';
 import StatsCard from '../../components/StatsCard';
 import './AdminOverview.css';
 
@@ -25,18 +25,18 @@ export default function AdminOverview() {
             setStats(statsData.stats);
             setStatusCounts(statsData.statusCounts || {});
         } else {
-            // Fallback to mock data
-            const totalRevenue = mockOrders.reduce((sum, o) => sum + o.total, 0);
-            const todayOrders = mockOrders.filter((o) => o.status === 'new' || o.status === 'packing').length;
-            const lowStock = mockProducts.filter((p) => p.stock <= 10).length;
-            setStats({ totalRevenue, activeOrders: todayOrders, customers: 2340, lowStock, totalProducts: mockProducts.length, totalOrders: mockOrders.length });
+            // Fallback to initial data
+            const totalRevenue = initialOrders.reduce((sum, o) => sum + o.total, 0);
+            const todayOrders = initialOrders.filter((o) => o.status === 'new' || o.status === 'packing').length;
+            const lowStock = initialProducts.filter((p) => p.stock <= 10).length;
+            setStats({ totalRevenue, activeOrders: todayOrders, customers: 0, lowStock, totalProducts: initialProducts.length, totalOrders: initialOrders.length });
             const sc = {};
-            mockOrders.forEach(o => { sc[o.status] = (sc[o.status] || 0) + 1; });
+            initialOrders.forEach(o => { sc[o.status] = (sc[o.status] || 0) + 1; });
             setStatusCounts(sc);
         }
 
-        setRecentOrders((ordersData?.orders || mockOrders).slice(0, 5));
-        setTopProducts(topData?.products || [...mockProducts].sort((a, b) => b.reviews - a.reviews).slice(0, 5));
+        setRecentOrders((ordersData?.orders || initialOrders).slice(0, 5));
+        setTopProducts(topData?.products || [...initialProducts].sort((a, b) => b.reviews - a.reviews).slice(0, 5));
         setLoading(false);
     }, []);
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { products as mockProducts } from '../../data/products';
+import { products as initialProducts } from '../../data/products';
 import { productsApi } from '../../lib/api';
 import { AlertTriangle, TrendingDown, Package, ShoppingCart, Loader } from 'lucide-react';
 import './StaffInventory.css';
@@ -11,7 +11,7 @@ export default function StaffInventory() {
     const fetchProducts = useCallback(async () => {
         setLoading(true);
         const data = await productsApi.getAll();
-        setProductList(data?.products || mockProducts);
+        setProductList(data?.products || initialProducts);
         setLoading(false);
     }, []);
 
