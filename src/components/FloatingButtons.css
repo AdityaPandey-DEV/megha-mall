@@ -1,0 +1,51 @@
+/* ── Floating Buttons ── */
+.floating-buttons {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.floating-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    transition: all 0.25s ease;
+}
+
+.floating-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+}
+
+.whatsapp-btn {
+    background: linear-gradient(135deg, #25d366, #128c7e);
+}
+
+.top-btn {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    animation: fadeIn 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .floating-buttons {
+        bottom: 16px;
+        right: 16px;
+    }
+
+    .floating-btn {
+        width: 44px;
+        height: 44px;
+    }
+}

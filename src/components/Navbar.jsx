@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Search, User, Menu, X, Heart, MapPin } from 'lucide-react';
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
@@ -12,6 +12,16 @@ export default function Navbar() {
     const { itemCount } = useCart();
     const { user, isLoggedIn, devLogin, logout } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+            setSearchQuery('');
+            setMobileOpen(false);
+        }
+    };
 
     return (
         <>
@@ -50,7 +60,7 @@ export default function Navbar() {
                         </div>
                     </Link>
 
-                    <div className="navbar-search">
+                    <form className="navbar-search" onSubmit={handleSearch}>
                         <Search size={18} className="search-icon" />
                         <input
                             type="text"
@@ -59,7 +69,12 @@ export default function Navbar() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="search-input"
                         />
-                    </div>
+                        {searchQuery && (
+                            <button type="submit" className="search-submit-btn">
+                                Search
+                            </button>
+                        )}
+                    </form>
 
                     <div className="navbar-actions">
                         {isLoggedIn && user.role !== 'CUSTOMER' && (
@@ -97,7 +112,7 @@ export default function Navbar() {
                                 {cat.name}
                             </Link>
                         ))}
-                        <Link to="/offers" className="category-link offers-link">
+                        <Link to="/offers" className={`category-link offers-link ${location.pathname === '/offers' ? 'active' : ''}`}>
                             🏷️ Offers
                         </Link>
                     </div>
@@ -112,10 +127,14 @@ export default function Navbar() {
                             <span className="logo-text"><img src="/favicon.svg" alt="" width="28" height="28" style={{ verticalAlign: 'middle', marginRight: '8px' }} />Megha Mall</span>
                             <button onClick={() => setMobileOpen(false)}><X size={22} /></button>
                         </div>
-                        <div className="mobile-search">
+                        <form className="mobile-search" onSubmit={handleSearch}>
                             <Search size={18} />
-                            <input placeholder="Search products..." />
-                        </div>
+                            <input
+                                placeholder="Search products..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </form>
                         <div className="mobile-nav-links">
                             <Link to="/" onClick={() => setMobileOpen(false)}>Home</Link>
                             {categories.map((cat) => (
@@ -124,6 +143,7 @@ export default function Navbar() {
                                 </Link>
                             ))}
                             <Link to="/offers" onClick={() => setMobileOpen(false)}>🏷️ Offers</Link>
+                            <Link to="/wishlist" onClick={() => setMobileOpen(false)}>❤️ Wishlist</Link>
                             <Link to="/cart" onClick={() => setMobileOpen(false)}>🛒 Cart ({itemCount})</Link>
                             <Link to="/account" onClick={() => setMobileOpen(false)}>👤 My Account</Link>
                             {isLoggedIn && user.role !== 'CUSTOMER' && (

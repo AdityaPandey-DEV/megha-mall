@@ -91,6 +91,29 @@
     flex: 1;
     max-width: 520px;
     position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-submit-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 5px 14px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    border: none;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    z-index: 1;
+}
+
+.search-submit-btn:hover {
+    box-shadow: 0 2px 8px rgba(232, 89, 12, 0.3);
 }
 
 .search-icon {

@@ -16,6 +16,9 @@ const ProductPage = lazy(() => import('./pages/customer/ProductPage'));
 const CartPage = lazy(() => import('./pages/customer/CartPage'));
 const CheckoutPage = lazy(() => import('./pages/customer/CheckoutPage'));
 const AccountPage = lazy(() => import('./pages/customer/AccountPage'));
+const OffersPage = lazy(() => import('./pages/customer/OffersPage'));
+const WishlistPage = lazy(() => import('./pages/customer/WishlistPage'));
+const SearchPage = lazy(() => import('./pages/customer/SearchPage'));
 
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
@@ -49,6 +52,9 @@ export default function App() {
                   <Route path="/category/:categoryId" element={<CategoryPage />} />
                   <Route path="/product/:productId" element={<ProductPage />} />
                   <Route path="/cart" element={<CartPage />} />
+                  <Route path="/offers" element={<OffersPage />} />
+                  <Route path="/wishlist" element={<WishlistPage />} />
+                  <Route path="/search" element={<SearchPage />} />
                   <Route path="/checkout" element={
                     <ProtectedRoute><CheckoutPage /></ProtectedRoute>
                   } />
