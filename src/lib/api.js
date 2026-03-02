@@ -96,3 +96,9 @@ export const uploadApi = {
         return data;
     },
 };
+
+// ── Admin API ──
+export const adminApi = {
+    getUsers: () => request('/admin/users'),
+    updateUserRole: (id, role) => request(`/admin/users/${id}/role`, { method: 'PATCH', body: JSON.stringify({ role }) }),
+};

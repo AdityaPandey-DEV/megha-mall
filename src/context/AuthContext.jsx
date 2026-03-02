@@ -2,14 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 
 const AuthContext = createContext();
 
-// Demo users for offline / no-backend mode
-const DEMO_USERS = {
-    customer: { id: 'demo-customer', name: 'Customer', email: 'customer@meghamall.com', role: 'CUSTOMER', avatar: null },
-    staff: { id: 'demo-staff', name: 'Staff Member', email: 'staff@meghamall.com', role: 'STAFF', avatar: null },
-    admin: { id: 'demo-admin', name: 'Admin', email: 'admin@meghamall.com', role: 'ADMIN', avatar: null },
-};
-
-// Try API call, return null on network failure (allows offline mode)
+// API helper — returns null on network failure (offline fallback)
 async function tryApi(endpoint, options = {}) {
     const token = localStorage.getItem('auth_token');
     try {
@@ -24,7 +17,8 @@ async function tryApi(endpoint, options = {}) {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Request failed');
         return data;
-    } catch {
+    } catch (err) {
+        if (err.message && err.message !== 'Request failed') throw err;
         return null;
     }
 }
@@ -39,10 +33,8 @@ export function AuthProvider({ children }) {
         const token = localStorage.getItem('auth_token');
 
         if (stored) {
-            // Restore from localStorage (works offline)
             setUser(JSON.parse(stored));
             setLoading(false);
-            // Optionally validate token with backend
             if (token) {
                 tryApi('/auth/me').then(data => {
                     if (data?.user) {
@@ -79,9 +71,7 @@ export function AuthProvider({ children }) {
         if (data?.token) {
             return persistUser(data.user, data.token);
         }
-        // Fallback demo mode
-        const demoUser = { ...DEMO_USERS.customer, email, name: email.split('@')[0] };
-        return persistUser(demoUser, 'demo-token');
+        throw new Error('Invalid email or password');
     }, [persistUser]);
 
     // Email + password register
@@ -93,9 +83,7 @@ export function AuthProvider({ children }) {
         if (data?.token) {
             return persistUser(data.user, data.token);
         }
-        // Fallback demo mode
-        const demoUser = { ...DEMO_USERS.customer, name, email };
-        return persistUser(demoUser, 'demo-token');
+        throw new Error('Registration failed');
     }, [persistUser]);
 
     // Google OAuth
@@ -107,7 +95,7 @@ export function AuthProvider({ children }) {
         if (data?.token) {
             return persistUser(data.user, data.token);
         }
-        throw new Error('Google login requires a running backend');
+        throw new Error('Google login failed');
     }, [persistUser]);
 
     // OTP
@@ -117,8 +105,7 @@ export function AuthProvider({ children }) {
             body: JSON.stringify({ email }),
         });
         if (data) return data;
-        // Demo fallback — pretend OTP was sent
-        return { message: 'Demo mode: Use code 123456' };
+        throw new Error('Failed to send OTP');
     }, []);
 
     const verifyOtp = useCallback(async (email, code) => {
@@ -128,11 +115,6 @@ export function AuthProvider({ children }) {
         });
         if (data?.token) {
             return persistUser(data.user, data.token);
-        }
-        // Demo fallback
-        if (code === '123456') {
-            const demoUser = { ...DEMO_USERS.customer, email, name: email.split('@')[0] };
-            return persistUser(demoUser, 'demo-token');
         }
         throw new Error('Invalid OTP code');
     }, [persistUser]);
@@ -144,34 +126,6 @@ export function AuthProvider({ children }) {
         setUser(null);
     }, []);
 
-    // Quick login for staff/admin (development + demo helper)
-    const devLogin = useCallback(async (role) => {
-        const email = `${role}@meghamall.com`;
-        const password = 'password123';
-
-        // Try real backend first
-        const loginData = await tryApi('/auth/login', {
-            method: 'POST',
-            body: JSON.stringify({ email, password }),
-        });
-        if (loginData?.token) {
-            return persistUser(loginData.user, loginData.token);
-        }
-
-        // Try register
-        const regData = await tryApi('/auth/register', {
-            method: 'POST',
-            body: JSON.stringify({ name: role.charAt(0).toUpperCase() + role.slice(1), email, password }),
-        });
-        if (regData?.token) {
-            return persistUser(regData.user, regData.token);
-        }
-
-        // Fallback to demo user
-        const demoUser = DEMO_USERS[role] || DEMO_USERS.customer;
-        return persistUser(demoUser, 'demo-token');
-    }, [persistUser]);
-
     const value = {
         user,
         loading,
@@ -182,7 +136,6 @@ export function AuthProvider({ children }) {
         sendOtp,
         verifyOtp,
         logout,
-        devLogin,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

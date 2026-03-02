@@ -60,6 +60,16 @@ app.use(express.json());
 // Health
 app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
+// Helper: auto-promote admin by email from env
+async function checkAndSetAdminRole(user) {
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (adminEmail && user.email === adminEmail && user.role !== 'ADMIN') {
+        const updated = await prisma.user.update({ where: { id: user.id }, data: { role: 'ADMIN' } });
+        return updated;
+    }
+    return user;
+}
+
 // ════════════════════ AUTH ════════════════════
 app.post('/api/auth/register', async (req, res) => {
     try {
@@ -77,9 +87,10 @@ app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
-        const user = await prisma.user.findUnique({ where: { email } });
+        let user = await prisma.user.findUnique({ where: { email } });
         if (!user || !user.password) return res.status(401).json({ error: 'Invalid email or password' });
         if (!(await bcrypt.compare(password, user.password))) return res.status(401).json({ error: 'Invalid email or password' });
+        user = await checkAndSetAdminRole(user);
         res.json({ token: generateToken(user), user: { id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar } });
     } catch (err) { console.error(err); res.status(500).json({ error: 'Login failed' }); }
 });
@@ -91,6 +102,7 @@ app.post('/api/auth/google', async (req, res) => {
         let user = await prisma.user.findUnique({ where: { email: g.email } });
         if (user) { if (!user.googleId) user = await prisma.user.update({ where: { id: user.id }, data: { googleId: g.googleId, avatar: user.avatar || g.avatar, emailVerified: true } }); }
         else { user = await prisma.user.create({ data: { name: g.name, email: g.email, googleId: g.googleId, avatar: g.avatar, provider: 'google', emailVerified: true } }); }
+        user = await checkAndSetAdminRole(user);
         res.json({ token: generateToken(user), user: { id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar } });
     } catch (err) { console.error(err); res.status(500).json({ error: 'Google auth failed' }); }
 });
@@ -188,7 +200,7 @@ app.get('/api/products/:id', async (req, res) => {
     } catch (err) { res.status(500).json({ error: 'Failed to fetch product' }); }
 });
 
-app.post('/api/products', authenticate, authorize('STAFF', 'ADMIN'), async (req, res) => {
+app.post('/api/products', authenticate, authorize('MANAGEMENT', 'ADMIN'), async (req, res) => {
     try {
         const { name, nameHi, brand, category, subcategory, price, mrp, unit, image, description, stock, rating } = req.body;
         if (!name || !brand || !category || !subcategory || !price || !mrp || !unit) return res.status(400).json({ error: 'Missing fields' });
@@ -196,7 +208,7 @@ app.post('/api/products', authenticate, authorize('STAFF', 'ADMIN'), async (req,
     } catch (err) { console.error(err); res.status(500).json({ error: 'Failed to create product' }); }
 });
 
-app.put('/api/products/:id', authenticate, authorize('STAFF', 'ADMIN'), async (req, res) => {
+app.put('/api/products/:id', authenticate, authorize('MANAGEMENT', 'ADMIN'), async (req, res) => {
     try {
         const data = {};
         ['name', 'nameHi', 'brand', 'category', 'subcategory', 'unit', 'image', 'description'].forEach(f => { if (req.body[f] !== undefined) data[f] = req.body[f]; });
@@ -212,13 +224,13 @@ app.delete('/api/products/:id', authenticate, authorize('ADMIN'), async (req, re
     catch (err) { res.status(500).json({ error: 'Failed to delete product' }); }
 });
 
-app.patch('/api/products/:id/stock', authenticate, authorize('STAFF', 'ADMIN'), async (req, res) => {
+app.patch('/api/products/:id/stock', authenticate, authorize('MANAGEMENT', 'ADMIN'), async (req, res) => {
     try { res.json({ product: await prisma.product.update({ where: { id: req.params.id }, data: { stock: parseInt(req.body.stock) } }) }); }
     catch (err) { res.status(500).json({ error: 'Failed to update stock' }); }
 });
 
 // ════════════════════ ORDERS ════════════════════
-app.get('/api/orders', authenticate, authorize('STAFF', 'ADMIN'), async (req, res) => {
+app.get('/api/orders', authenticate, authorize('MANAGEMENT', 'ADMIN'), async (req, res) => {
     try {
         const where = {};
         if (req.query.status && req.query.status !== 'all') where.status = req.query.status;
@@ -237,7 +249,7 @@ app.post('/api/orders', authenticate, async (req, res) => {
     } catch (err) { console.error(err); res.status(500).json({ error: 'Failed to create order' }); }
 });
 
-app.patch('/api/orders/:id/status', authenticate, authorize('STAFF', 'ADMIN'), async (req, res) => {
+app.patch('/api/orders/:id/status', authenticate, authorize('MANAGEMENT', 'ADMIN'), async (req, res) => {
     try {
         const { status } = req.body;
         if (!['new', 'packing', 'packed', 'dispatched', 'delivered'].includes(status)) return res.status(400).json({ error: 'Invalid status' });
@@ -246,7 +258,7 @@ app.patch('/api/orders/:id/status', authenticate, authorize('STAFF', 'ADMIN'), a
 });
 
 // ════════════════════ DASHBOARD ════════════════════
-app.get('/api/dashboard/stats', authenticate, authorize('STAFF', 'ADMIN'), async (req, res) => {
+app.get('/api/dashboard/stats', authenticate, authorize('MANAGEMENT', 'ADMIN'), async (req, res) => {
     try {
         const [orders, products, users] = await Promise.all([
             prisma.order.findMany({ select: { total: true, status: true } }),
@@ -261,13 +273,13 @@ app.get('/api/dashboard/stats', authenticate, authorize('STAFF', 'ADMIN'), async
     } catch (err) { console.error(err); res.status(500).json({ error: 'Failed to fetch stats' }); }
 });
 
-app.get('/api/dashboard/top-products', authenticate, authorize('STAFF', 'ADMIN'), async (req, res) => {
+app.get('/api/dashboard/top-products', authenticate, authorize('MANAGEMENT', 'ADMIN'), async (req, res) => {
     try { res.json({ products: await prisma.product.findMany({ where: { isActive: true }, orderBy: { reviews: 'desc' }, take: 5 }) }); }
     catch (err) { res.status(500).json({ error: 'Failed to fetch top products' }); }
 });
 
 // ════════════════════ UPLOAD (Vercel Blob) ════════════════════
-app.post('/api/upload', authenticate, authorize('STAFF', 'ADMIN'), express.raw({ type: 'image/*', limit: '5mb' }), async (req, res) => {
+app.post('/api/upload', authenticate, authorize('MANAGEMENT', 'ADMIN'), express.raw({ type: 'image/*', limit: '5mb' }), async (req, res) => {
     try {
         const filename = req.query.filename || `product-${Date.now()}.jpg`;
         const blob = await put(`megha-mall/${filename}`, req.body, { access: 'public', token: process.env.BLOB_READ_WRITE_TOKEN });
@@ -276,6 +288,36 @@ app.post('/api/upload', authenticate, authorize('STAFF', 'ADMIN'), express.raw({
         console.error('Upload error:', err);
         res.status(500).json({ error: 'Upload failed' });
     }
+});
+
+// ════════════════════ ADMIN: USER MANAGEMENT ════════════════════
+app.get('/api/admin/users', authenticate, authorize('ADMIN'), async (req, res) => {
+    try {
+        const users = await prisma.user.findMany({
+            select: { id: true, name: true, email: true, role: true, avatar: true, phone: true, provider: true, createdAt: true },
+            orderBy: { createdAt: 'desc' },
+        });
+        res.json({ users });
+    } catch (err) { console.error(err); res.status(500).json({ error: 'Failed to fetch users' }); }
+});
+
+app.patch('/api/admin/users/:id/role', authenticate, authorize('ADMIN'), async (req, res) => {
+    try {
+        const { role } = req.body;
+        if (!['CUSTOMER', 'DELIVERY', 'MANAGEMENT'].includes(role)) {
+            return res.status(400).json({ error: 'Invalid role. Must be CUSTOMER, DELIVERY, or MANAGEMENT' });
+        }
+        // Don't allow changing own role
+        if (req.params.id === req.user.id) {
+            return res.status(400).json({ error: 'Cannot change your own role' });
+        }
+        const user = await prisma.user.update({
+            where: { id: req.params.id },
+            data: { role },
+            select: { id: true, name: true, email: true, role: true, avatar: true, phone: true },
+        });
+        res.json({ user });
+    } catch (err) { console.error(err); res.status(500).json({ error: 'Failed to update user role' }); }
 });
 
 // ── Export for Vercel ──

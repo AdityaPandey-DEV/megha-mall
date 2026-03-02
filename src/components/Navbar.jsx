@@ -10,7 +10,7 @@ export default function Navbar() {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const { itemCount } = useCart();
-    const { user, isLoggedIn, devLogin, logout } = useAuth();
+    const { user, isLoggedIn, logout } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -35,11 +35,7 @@ export default function Navbar() {
                     <div className="top-strip-right">
                         <span>📞 Help: 1800-123-MEGHA</span>
                         {!isLoggedIn ? (
-                            <div className="quick-login">
-                                <Link to="/login" className="top-link">Sign In</Link>
-                                <button onClick={() => devLogin('staff')} className="top-link">Staff</button>
-                                <button onClick={() => devLogin('admin')} className="top-link">Admin</button>
-                            </div>
+                            <Link to="/login" className="top-link">Sign In</Link>
                         ) : (
                             <span className="top-link" onClick={logout} style={{ cursor: 'pointer' }}>
                                 Logout ({user.name})
@@ -77,7 +73,7 @@ export default function Navbar() {
                     </form>
 
                     <div className="navbar-actions">
-                        {isLoggedIn && user.role !== 'CUSTOMER' && (
+                        {isLoggedIn && ['ADMIN', 'MANAGEMENT'].includes(user.role) && (
                             <Link to={user.role === 'ADMIN' ? '/admin' : '/staff'} className="btn btn-sm btn-secondary">
                                 Dashboard
                             </Link>
@@ -146,7 +142,7 @@ export default function Navbar() {
                             <Link to="/wishlist" onClick={() => setMobileOpen(false)}>❤️ Wishlist</Link>
                             <Link to="/cart" onClick={() => setMobileOpen(false)}>🛒 Cart ({itemCount})</Link>
                             <Link to="/account" onClick={() => setMobileOpen(false)}>👤 My Account</Link>
-                            {isLoggedIn && user.role !== 'CUSTOMER' && (
+                            {isLoggedIn && ['ADMIN', 'MANAGEMENT'].includes(user.role) && (
                                 <Link to={user.role === 'ADMIN' ? '/admin' : '/staff'} onClick={() => setMobileOpen(false)}>
                                     📊 Dashboard
                                 </Link>

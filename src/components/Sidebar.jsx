@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Package, ClipboardList, AlertTriangle, BarChart3, ShoppingBag, FileText, Users, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Package, ClipboardList, AlertTriangle, BarChart3, ShoppingBag, FileText, Users, UserCog, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import './Sidebar.css';
@@ -15,6 +15,7 @@ const adminLinks = [
     { to: '/admin/products', icon: ShoppingBag, label: 'Product Analytics' },
     { to: '/admin/reports', icon: FileText, label: 'Reports' },
     { to: '/admin/staff', icon: Users, label: 'Staff Activity' },
+    { to: '/admin/users', icon: UserCog, label: 'User Management' },
 ];
 
 export default function Sidebar({ type = 'staff' }) {

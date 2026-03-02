@@ -31,6 +31,7 @@ const AdminOverview = lazy(() => import('./pages/admin/AdminOverview'));
 const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
 const AdminReports = lazy(() => import('./pages/admin/AdminReports'));
 const AdminStaffActivity = lazy(() => import('./pages/admin/AdminStaffActivity'));
+const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
@@ -65,7 +66,7 @@ export default function App() {
 
                 {/* Staff Dashboard */}
                 <Route element={
-                  <ProtectedRoute roles={['STAFF', 'ADMIN']}>
+                  <ProtectedRoute roles={['MANAGEMENT', 'ADMIN']}>
                     <DashboardLayout type="staff" />
                   </ProtectedRoute>
                 }>
@@ -86,6 +87,7 @@ export default function App() {
                   <Route path="/admin/analytics" element={<AdminAnalytics />} />
                   <Route path="/admin/reports" element={<AdminReports />} />
                   <Route path="/admin/staff-activity" element={<AdminStaffActivity />} />
+                  <Route path="/admin/users" element={<AdminUsers />} />
                 </Route>
 
                 {/* 404 Catch-all */}
