@@ -30,10 +30,10 @@ export default function Navbar() {
                 <div className="container top-strip-inner">
                     <div className="top-strip-left">
                         <MapPin size={13} />
-                        <span>Delivering to Dehradun, Uttarakhand</span>
+                        <span>Delivering to Haldwani, Uttarakhand</span>
                     </div>
                     <div className="top-strip-right">
-                        <span>📞 Help: 1800-123-MEGHA</span>
+                        <span>📞 Help: 8273287789</span>
                         {!isLoggedIn ? (
                             <Link to="/login" className="top-link">Sign In</Link>
                         ) : (

@@ -42,15 +42,15 @@ export default function Footer() {
                         <h4>Contact Us</h4>
                         <div className="footer-contact">
                             <MapPin size={15} />
-                            <span>Block C, MG Road, Dehradun, Uttarakhand 248001</span>
+                            <span>Kaladhungi Rd, Bank Colony, Kusumkhera, Haldwani, Haripur Nayak, Uttarakhand 263139</span>
                         </div>
                         <div className="footer-contact">
                             <Phone size={15} />
-                            <span>1800-123-MEGHA</span>
+                            <span>8273287789</span>
                         </div>
                         <div className="footer-contact">
                             <Mail size={15} />
-                            <span>support@meghamall.in</span>
+                            <span>harshit071sharma@gmail.com</span>
                         </div>
                         <div className="footer-contact">
                             <Clock size={15} />

@@ -3,8 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { MapPin, Clock, Phone, ArrowLeft, Loader, Truck } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
-// Dehradun center
-const STORE_LOCATION = { lat: 30.3165, lng: 78.0322 };
+// Haldwani center
+const STORE_LOCATION = { lat: 29.2183, lng: 79.5130 };
 
 export default function OrderTracking() {
     const { orderId } = useParams();

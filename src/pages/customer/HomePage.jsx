@@ -22,7 +22,7 @@ export default function HomePage() {
                             <span className="hero-highlight">Delivered to Your Door</span>
                         </h1>
                         <p className="hero-desc">
-                            Your trusted Megha Mall is now online. Shop from 500+ products with same-day delivery in Dehradun.
+                            Your trusted Megha Mall is now online. Shop from 500+ products with same-day delivery in Haldwani.
                         </p>
                         <div className="hero-actions">
                             <Link to="/category/groceries" className="btn btn-primary btn-lg">

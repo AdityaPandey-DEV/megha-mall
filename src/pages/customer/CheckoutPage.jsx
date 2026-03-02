@@ -19,7 +19,7 @@ export default function CheckoutPage() {
         name: user?.name || '',
         phone: user?.phone || '',
         line1: user?.addresses?.[0]?.address || '',
-        city: user?.addresses?.[0]?.city || 'Dehradun',
+        city: user?.addresses?.[0]?.city || 'Haldwani',
         pin: user?.addresses?.[0]?.pin || '',
     });
 
