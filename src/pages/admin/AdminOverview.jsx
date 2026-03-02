@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { IndianRupee, ShoppingCart, Users, Package, Loader } from 'lucide-react';
 import { orders as initialOrders, statusLabels, statusColors } from '../../data/orders';
 import { products as initialProducts } from '../../data/products';
@@ -7,6 +8,7 @@ import StatsCard from '../../components/StatsCard';
 import './AdminOverview.css';
 
 export default function AdminOverview() {
+    const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [statusCounts, setStatusCounts] = useState({});
     const [recentOrders, setRecentOrders] = useState([]);
@@ -162,14 +164,14 @@ export default function AdminOverview() {
                 <h3 className="overview-card-title">Quick Actions</h3>
                 <div className="quick-actions-grid">
                     {[
-                        { label: 'Add Product', icon: '📦', desc: 'List a new product' },
-                        { label: 'View Orders', icon: '📋', desc: 'Manage pending orders' },
-                        { label: 'Send Notification', icon: '📢', desc: 'Broadcast to customers' },
-                        { label: 'Generate Report', icon: '📊', desc: 'Download sales report' },
-                        { label: 'Manage Staff', icon: '👥', desc: 'Update staff access' },
-                        { label: 'Update Offers', icon: '🏷️', desc: 'Create new promotions' },
+                        { label: 'Add Product', icon: '📦', desc: 'List a new product', path: '/staff/products' },
+                        { label: 'View Orders', icon: '📋', desc: 'Manage pending orders', path: '/staff/orders' },
+                        { label: 'Send Notification', icon: '📢', desc: 'Broadcast to customers', path: '/admin/users' },
+                        { label: 'Generate Report', icon: '📊', desc: 'Download sales report', path: '/admin/reports' },
+                        { label: 'Manage Staff', icon: '👥', desc: 'Update staff access', path: '/admin/staff-activity' },
+                        { label: 'Update Offers', icon: '🏷️', desc: 'Create new promotions', path: '/staff/products' },
                     ].map((action, i) => (
-                        <button key={i} className="quick-action-btn">
+                        <button key={i} className="quick-action-btn" onClick={() => navigate(action.path)}>
                             <span className="quick-action-icon">{action.icon}</span>
                             <span className="quick-action-label">{action.label}</span>
                             <span className="quick-action-desc">{action.desc}</span>
@@ -180,3 +182,4 @@ export default function AdminOverview() {
         </div>
     );
 }
+
