@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("PRISMA_DATABASE_URL")
+  directUrl = env("POSTGRES_URL")
 }
 
 model User {
@@ -39,7 +40,7 @@ model Otp {
 }
 
 model Product {
-  id          String  @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
   nameHi      String?
   brand       String
@@ -50,10 +51,10 @@ model Product {
   unit        String
   image       String
   description String?
-  stock       Int     @default(100)
-  rating      Float   @default(4.0)
-  reviews     Int     @default(0)
-  isActive    Boolean @default(true)
+  stock       Int      @default(100)
+  rating      Float    @default(4.0)
+  reviews     Int      @default(0)
+  isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
