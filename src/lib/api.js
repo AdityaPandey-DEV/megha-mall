@@ -78,3 +78,21 @@ export const dashboardApi = {
     getStats: () => tryRequest('/dashboard/stats'),
     getTopProducts: () => tryRequest('/dashboard/top-products'),
 };
+
+// ── Upload API (Vercel Blob) ──
+export const uploadApi = {
+    uploadImage: async (file) => {
+        const token = getToken();
+        const res = await fetch(`${API_BASE}/upload?filename=${encodeURIComponent(file.name)}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': file.type,
+                ...(token && { Authorization: `Bearer ${token}` }),
+            },
+            body: file,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Upload failed');
+        return data;
+    },
+};

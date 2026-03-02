@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { products as initialProducts } from '../../data/products';
 import { categories } from '../../data/categories';
-import { productsApi } from '../../lib/api';
+import { productsApi, uploadApi } from '../../lib/api';
 import { Search, Plus, Edit3, Eye, EyeOff, Save, X, Upload, Loader } from 'lucide-react';
 import './StaffProducts.css';
 
@@ -9,6 +9,7 @@ export default function StaffProducts() {
     const [productList, setProductList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterCategory, setFilterCategory] = useState('all');
     const [editingId, setEditingId] = useState(null);
@@ -75,6 +76,19 @@ export default function StaffProducts() {
         setShowAddModal(false);
         setNewProduct({ name: '', nameHi: '', brand: '', category: 'groceries', subcategory: 'rice-flour', price: '', mrp: '', stock: 100, unit: '', description: '', image: '' });
         setSaving(false);
+    };
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setUploading(true);
+        try {
+            const data = await uploadApi.uploadImage(file);
+            setNewProduct(prev => ({ ...prev, image: data.url }));
+        } catch (err) {
+            console.error('Upload failed:', err);
+        }
+        setUploading(false);
     };
 
     const deleteProduct = async (id) => {
@@ -229,7 +243,17 @@ export default function StaffProducts() {
                                 <div className="form-group"><label>MRP (₹) *</label><input className="input" type="number" placeholder="220" value={newProduct.mrp} onChange={e => setNewProduct({ ...newProduct, mrp: e.target.value })} /></div>
                                 <div className="form-group"><label>Stock</label><input className="input" type="number" placeholder="100" value={newProduct.stock} onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })} /></div>
                                 <div className="form-group"><label>Unit</label><input className="input" placeholder="1 kg" value={newProduct.unit} onChange={e => setNewProduct({ ...newProduct, unit: e.target.value })} /></div>
-                                <div className="form-group full-width"><label>Image URL</label><input className="input" placeholder="https://..." value={newProduct.image} onChange={e => setNewProduct({ ...newProduct, image: e.target.value })} /></div>
+                                <div className="form-group full-width">
+                                    <label>Product Image</label>
+                                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                                        <label className="btn btn-secondary" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
+                                            <Upload size={16} /> {uploading ? 'Uploading...' : 'Choose Image'}
+                                            <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} disabled={uploading} />
+                                        </label>
+                                        <input className="input" placeholder="Or paste image URL" value={newProduct.image} onChange={e => setNewProduct({ ...newProduct, image: e.target.value })} style={{ flex: 1 }} />
+                                    </div>
+                                    {newProduct.image && <img src={newProduct.image} alt="Preview" style={{ marginTop: '0.5rem', height: 80, borderRadius: 8, objectFit: 'cover' }} />}
+                                </div>
                                 <div className="form-group full-width"><label>Description</label><textarea className="input" rows={3} placeholder="Product description..." value={newProduct.description} onChange={e => setNewProduct({ ...newProduct, description: e.target.value })} /></div>
                             </div>
                         </div>

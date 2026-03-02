@@ -4,6 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
+import { put } from '@vercel/blob';
 
 // ── Prisma Client (singleton for serverless) ──
 const globalForPrisma = globalThis;
@@ -263,6 +264,18 @@ app.get('/api/dashboard/stats', authenticate, authorize('STAFF', 'ADMIN'), async
 app.get('/api/dashboard/top-products', authenticate, authorize('STAFF', 'ADMIN'), async (req, res) => {
     try { res.json({ products: await prisma.product.findMany({ where: { isActive: true }, orderBy: { reviews: 'desc' }, take: 5 }) }); }
     catch (err) { res.status(500).json({ error: 'Failed to fetch top products' }); }
+});
+
+// ════════════════════ UPLOAD (Vercel Blob) ════════════════════
+app.post('/api/upload', authenticate, authorize('STAFF', 'ADMIN'), express.raw({ type: 'image/*', limit: '5mb' }), async (req, res) => {
+    try {
+        const filename = req.query.filename || `product-${Date.now()}.jpg`;
+        const blob = await put(`megha-mall/${filename}`, req.body, { access: 'public', token: process.env.BLOB_READ_WRITE_TOKEN });
+        res.json({ url: blob.url });
+    } catch (err) {
+        console.error('Upload error:', err);
+        res.status(500).json({ error: 'Upload failed' });
+    }
 });
 
 // ── Export for Vercel ──
