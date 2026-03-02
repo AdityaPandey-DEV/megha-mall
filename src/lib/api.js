@@ -1,57 +1,80 @@
+// ── API Client with auth token management ──
 const API_BASE = '/api';
 
-async function request(endpoint, options = {}) {
-    const token = localStorage.getItem('auth_token');
+function getToken() {
+    return localStorage.getItem('auth_token');
+}
 
-    const config = {
+async function request(endpoint, options = {}) {
+    const token = getToken();
+    const res = await fetch(`${API_BASE}${endpoint}`, {
         headers: {
             'Content-Type': 'application/json',
             ...(token && { Authorization: `Bearer ${token}` }),
             ...options.headers,
         },
         ...options,
-    };
-
-    const res = await fetch(`${API_BASE}${endpoint}`, config);
+    });
     const data = await res.json();
-
-    if (!res.ok) {
-        throw new Error(data.error || 'Request failed');
-    }
-
+    if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
     return data;
 }
 
-// ── Auth API ──────────────────────────────────────────────
+// Try API call, return null on failure (allows offline fallback)
+async function tryRequest(endpoint, options = {}) {
+    try {
+        return await request(endpoint, options);
+    } catch {
+        return null;
+    }
+}
+
+// ── Auth API ──
 export const authApi = {
-    register: (name, email, password) =>
-        request('/auth/register', { method: 'POST', body: JSON.stringify({ name, email, password }) }),
-
-    login: (email, password) =>
-        request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
-
-    googleLogin: (idToken) =>
-        request('/auth/google', { method: 'POST', body: JSON.stringify({ idToken }) }),
-
-    sendOtp: (email) =>
-        request('/auth/send-otp', { method: 'POST', body: JSON.stringify({ email }) }),
-
-    verifyOtp: (email, code) =>
-        request('/auth/verify-otp', { method: 'POST', body: JSON.stringify({ email, code }) }),
-
+    register: (body) => request('/auth/register', { method: 'POST', body: JSON.stringify(body) }),
+    login: (body) => request('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
+    google: (idToken) => request('/auth/google', { method: 'POST', body: JSON.stringify({ idToken }) }),
+    sendOtp: (email) => request('/auth/send-otp', { method: 'POST', body: JSON.stringify({ email }) }),
+    verifyOtp: (email, code) => request('/auth/verify-otp', { method: 'POST', body: JSON.stringify({ email, code }) }),
     me: () => request('/auth/me'),
 };
 
-// ── User API ──────────────────────────────────────────────
+// ── User API ──
 export const userApi = {
-    updateProfile: (data) =>
-        request('/user/profile', { method: 'PUT', body: JSON.stringify(data) }),
+    getProfile: () => request('/user/profile'),
+    updateProfile: (data) => request('/user/profile', { method: 'PUT', body: JSON.stringify(data) }),
+    changePassword: (data) => request('/user/password', { method: 'PUT', body: JSON.stringify(data) }),
+    getAddresses: () => request('/user/address'),
+    addAddress: (data) => request('/user/address', { method: 'POST', body: JSON.stringify(data) }),
+    deleteAddress: (id) => request(`/user/address/${id}`, { method: 'DELETE' }),
+};
 
-    changePassword: (currentPassword, newPassword) =>
-        request('/user/password', { method: 'PUT', body: JSON.stringify({ currentPassword, newPassword }) }),
+// ── Products API ──
+export const productsApi = {
+    getAll: (params = {}) => {
+        const qs = new URLSearchParams(params).toString();
+        return tryRequest(`/products${qs ? '?' + qs : ''}`);
+    },
+    getById: (id) => tryRequest(`/products/${id}`),
+    create: (data) => request('/products', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id, data) => request(`/products/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    delete: (id) => request(`/products/${id}`, { method: 'DELETE' }),
+    updateStock: (id, stock) => request(`/products/${id}/stock`, { method: 'PATCH', body: JSON.stringify({ stock }) }),
+};
 
-    getAddresses: () => request('/user/addresses'),
+// ── Orders API ──
+export const ordersApi = {
+    getAll: (params = {}) => {
+        const qs = new URLSearchParams(params).toString();
+        return tryRequest(`/orders${qs ? '?' + qs : ''}`);
+    },
+    getById: (id) => tryRequest(`/orders/${id}`),
+    create: (data) => request('/orders', { method: 'POST', body: JSON.stringify(data) }),
+    updateStatus: (id, status) => request(`/orders/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+};
 
-    addAddress: (data) =>
-        request('/user/addresses', { method: 'POST', body: JSON.stringify(data) }),
+// ── Dashboard API ──
+export const dashboardApi = {
+    getStats: () => tryRequest('/dashboard/stats'),
+    getTopProducts: () => tryRequest('/dashboard/top-products'),
 };

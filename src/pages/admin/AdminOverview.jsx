@@ -1,18 +1,59 @@
-import { IndianRupee, ShoppingCart, Users, Package, TrendingUp, TrendingDown, ArrowUpRight } from 'lucide-react';
-import { orders, statusLabels, statusColors } from '../../data/orders';
-import { products } from '../../data/products';
+import { useState, useEffect, useCallback } from 'react';
+import { IndianRupee, ShoppingCart, Users, Package, Loader } from 'lucide-react';
+import { orders as mockOrders, statusLabels, statusColors } from '../../data/orders';
+import { products as mockProducts } from '../../data/products';
+import { dashboardApi, ordersApi, productsApi } from '../../lib/api';
 import StatsCard from '../../components/StatsCard';
 import './AdminOverview.css';
 
 export default function AdminOverview() {
-    const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
-    const todayOrders = orders.filter((o) => o.status === 'new' || o.status === 'packing').length;
-    const avgOrderValue = Math.round(totalRevenue / orders.length);
-    const lowStock = products.filter((p) => p.stock <= 10).length;
+    const [stats, setStats] = useState(null);
+    const [statusCounts, setStatusCounts] = useState({});
+    const [recentOrders, setRecentOrders] = useState([]);
+    const [topProducts, setTopProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const recentOrders = orders.slice(0, 5);
+    const fetchData = useCallback(async () => {
+        setLoading(true);
+        const [statsData, ordersData, topData] = await Promise.all([
+            dashboardApi.getStats(),
+            ordersApi.getAll(),
+            dashboardApi.getTopProducts(),
+        ]);
 
-    const topProducts = [...products].sort((a, b) => b.reviews - a.reviews).slice(0, 5);
+        if (statsData) {
+            setStats(statsData.stats);
+            setStatusCounts(statsData.statusCounts || {});
+        } else {
+            // Fallback to mock data
+            const totalRevenue = mockOrders.reduce((sum, o) => sum + o.total, 0);
+            const todayOrders = mockOrders.filter((o) => o.status === 'new' || o.status === 'packing').length;
+            const lowStock = mockProducts.filter((p) => p.stock <= 10).length;
+            setStats({ totalRevenue, activeOrders: todayOrders, customers: 2340, lowStock, totalProducts: mockProducts.length, totalOrders: mockOrders.length });
+            const sc = {};
+            mockOrders.forEach(o => { sc[o.status] = (sc[o.status] || 0) + 1; });
+            setStatusCounts(sc);
+        }
+
+        setRecentOrders((ordersData?.orders || mockOrders).slice(0, 5));
+        setTopProducts(topData?.products || [...mockProducts].sort((a, b) => b.reviews - a.reviews).slice(0, 5));
+        setLoading(false);
+    }, []);
+
+    useEffect(() => { fetchData(); }, [fetchData]);
+
+    if (loading || !stats) {
+        return (
+            <div className="admin-overview">
+                <div className="dashboard-page-header">
+                    <h1 className="dashboard-page-title">Dashboard Overview</h1>
+                </div>
+                <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
+                    <Loader size={24} className="spin" /> Loading dashboard...
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="admin-overview">
@@ -23,14 +64,14 @@ export default function AdminOverview() {
 
             {/* Stats Cards */}
             <div className="stats-row">
-                <StatsCard icon={IndianRupee} label="Total Revenue" value={`₹${totalRevenue.toLocaleString()}`} trend="up" change={12.5} color="primary" />
-                <StatsCard icon={ShoppingCart} label="Active Orders" value={todayOrders} trend="up" change={8.2} color="success" />
-                <StatsCard icon={Users} label="Customers" value="2,340" trend="up" change={5.1} color="info" />
-                <StatsCard icon={Package} label="Low Stock Items" value={lowStock} trend="down" change={3} color="danger" />
+                <StatsCard icon={IndianRupee} label="Total Revenue" value={`₹${stats.totalRevenue.toLocaleString()}`} trend="up" change={12.5} color="primary" />
+                <StatsCard icon={ShoppingCart} label="Active Orders" value={stats.activeOrders} trend="up" change={8.2} color="success" />
+                <StatsCard icon={Users} label="Customers" value={stats.customers.toLocaleString()} trend="up" change={5.1} color="info" />
+                <StatsCard icon={Package} label="Low Stock Items" value={stats.lowStock} trend="down" change={3} color="danger" />
             </div>
 
             <div className="overview-grid">
-                {/* Revenue Chart Placeholder */}
+                {/* Revenue Chart */}
                 <div className="card overview-chart-card">
                     <h3 className="overview-card-title">Revenue Overview</h3>
                     <div className="chart-placeholder">
@@ -52,8 +93,9 @@ export default function AdminOverview() {
                     <h3 className="overview-card-title">Order Status</h3>
                     <div className="status-distribution">
                         {Object.entries(statusLabels).map(([key, label]) => {
-                            const count = orders.filter((o) => o.status === key).length;
-                            const pct = Math.round((count / orders.length) * 100);
+                            const count = statusCounts[key] || 0;
+                            const total = stats.totalOrders || 1;
+                            const pct = Math.round((count / total) * 100);
                             return (
                                 <div key={key} className="status-bar-row">
                                     <div className="status-bar-info">

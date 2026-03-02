@@ -1,11 +1,43 @@
-import { products } from '../../data/products';
-import { AlertTriangle, TrendingDown, Package, ShoppingCart } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { products as mockProducts } from '../../data/products';
+import { productsApi } from '../../lib/api';
+import { AlertTriangle, TrendingDown, Package, ShoppingCart, Loader } from 'lucide-react';
 import './StaffInventory.css';
 
 export default function StaffInventory() {
-    const lowStock = products.filter((p) => p.stock > 0 && p.stock <= 15).sort((a, b) => a.stock - b.stock);
-    const outOfStock = products.filter((p) => p.stock === 0);
-    const healthyStock = products.filter((p) => p.stock > 15);
+    const [productList, setProductList] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchProducts = useCallback(async () => {
+        setLoading(true);
+        const data = await productsApi.getAll();
+        setProductList(data?.products || mockProducts);
+        setLoading(false);
+    }, []);
+
+    useEffect(() => { fetchProducts(); }, [fetchProducts]);
+
+    const lowStock = productList.filter((p) => p.stock > 0 && p.stock <= 15).sort((a, b) => a.stock - b.stock);
+    const outOfStock = productList.filter((p) => p.stock === 0);
+    const healthyStock = productList.filter((p) => p.stock > 15);
+
+    const updateStock = async (id, newStock) => {
+        try { await productsApi.updateStock(id, newStock); } catch { /* fallback */ }
+        setProductList(prev => prev.map(p => p.id === id ? { ...p, stock: newStock } : p));
+    };
+
+    if (loading) {
+        return (
+            <div className="staff-inventory">
+                <div className="dashboard-page-header">
+                    <h1 className="dashboard-page-title">Inventory Alerts</h1>
+                </div>
+                <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
+                    <Loader size={24} className="spin" /> Loading inventory...
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="staff-inventory">
@@ -40,7 +72,7 @@ export default function StaffInventory() {
                 <div className="inv-card card total">
                     <ShoppingCart size={24} />
                     <div>
-                        <span className="inv-value">{products.length}</span>
+                        <span className="inv-value">{productList.length}</span>
                         <span className="inv-label">Total Products</span>
                     </div>
                 </div>
@@ -62,7 +94,7 @@ export default function StaffInventory() {
                             </div>
                             <div className="alert-item-stock">
                                 <span className="stock-count warning">{product.stock} left</span>
-                                <button className="btn btn-sm btn-primary">Reorder</button>
+                                <button className="btn btn-sm btn-primary" onClick={() => updateStock(product.id, product.stock + 50)}>Restock +50</button>
                             </div>
                         </div>
                     ))}
@@ -86,7 +118,7 @@ export default function StaffInventory() {
                                 </div>
                                 <div className="alert-item-stock">
                                     <span className="stock-count danger">Out of Stock</span>
-                                    <button className="btn btn-sm btn-primary">Reorder</button>
+                                    <button className="btn btn-sm btn-primary" onClick={() => updateStock(product.id, 50)}>Restock +50</button>
                                 </div>
                             </div>
                         ))}
@@ -109,7 +141,7 @@ export default function StaffInventory() {
                                 <td><span className="stock-count warning">{p.stock} units</span></td>
                                 <td>50 units</td>
                                 <td>₹{p.price * 50}</td>
-                                <td><button className="btn btn-sm btn-primary">Create PO</button></td>
+                                <td><button className="btn btn-sm btn-primary" onClick={() => updateStock(p.id, p.stock + 50)}>Restock</button></td>
                             </tr>
                         ))}
                     </tbody>
